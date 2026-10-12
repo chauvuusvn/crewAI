@@ -266,10 +266,10 @@ def strip_unsupported_formats(d: Any, _seen: set[int] | None = None) -> Any:
 
 
 def ensure_type_in_schemas(d: Any, _seen: set[int] | None = None) -> Any:
-    """Ensure all schema objects in anyOf/oneOf have a 'type' key.
+    """Ensure all schema objects in anyOf/oneOf are recursively validated.
 
-    OpenAI strict mode requires every schema to have a 'type' key.
-    Empty schemas {} in anyOf/oneOf are converted to {"type": "object"}.
+    Empty schemas {} in anyOf/oneOf are kept unconstrained to avoid coercing
+    scalar or Any parameters into object types.
 
     Args:
         d: The dictionary/list to modify.
@@ -287,10 +287,8 @@ def ensure_type_in_schemas(d: Any, _seen: set[int] | None = None) -> Any:
         for key in ("anyOf", "oneOf"):
             if key in d:
                 schema_list = d[key]
-                for i, schema in enumerate(schema_list):
-                    if isinstance(schema, dict) and schema == {}:
-                        schema_list[i] = {"type": "object"}
-                    else:
+                for schema in schema_list:
+                    if not (isinstance(schema, dict) and schema == {}):
                         ensure_type_in_schemas(schema, _seen)
         for v in d.values():
             ensure_type_in_schemas(v, _seen)

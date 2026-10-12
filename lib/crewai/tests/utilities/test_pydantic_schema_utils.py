@@ -785,15 +785,15 @@ class TestStripUnsupportedFormats:
 
 
 class TestEnsureTypeInSchemas:
-    def test_empty_schema_in_anyof_gets_type(self) -> None:
+    def test_empty_schema_in_anyof_remains_unconstrained(self) -> None:
         schema = {"anyOf": [{}, {"type": "string"}]}
         result = ensure_type_in_schemas(deepcopy(schema))
-        assert result["anyOf"][0] == {"type": "object"}
+        assert result["anyOf"][0] == {}
 
-    def test_empty_schema_in_oneof_gets_type(self) -> None:
+    def test_empty_schema_in_oneof_remains_unconstrained(self) -> None:
         schema = {"oneOf": [{}, {"type": "integer"}]}
         result = ensure_type_in_schemas(deepcopy(schema))
-        assert result["oneOf"][0] == {"type": "object"}
+        assert result["oneOf"][0] == {}
 
     def test_non_empty_unchanged(self) -> None:
         schema = {"anyOf": [{"type": "string"}, {"type": "integer"}]}
